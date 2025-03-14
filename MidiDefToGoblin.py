@@ -59,10 +59,9 @@ def loadCsv(inputFile):
     return midiArray
  
 def cleanParameterName(parameterName):
-    # Removes characters that aren't alphanumeric, space, or underscore, and shortens name to 14 characters
-    # newName = re.sub('[^0-9a-zA-Z _]+', '', parameterName) # Keeps spaces
-    newName = re.sub('[^0-9a-zA-Z_]+', '', parameterName) # Get rid of invalid characters
+    # Removes characters that aren't alphanumeric or underscore, replaces spaces with underscore, and shortens name to 14 characters spaces
     newName = re.sub('[ ]+', '_', parameterName) # Changes spaces to underscore
+    newName = re.sub('[^0-9a-zA-Z_]+', '', newName) # Get rid of invalid characters
     newName = newName[:14]
     return newName
 
