@@ -3,6 +3,9 @@ import os   # for directory operations
 import csv  # to simplify creating csv files
 import re # for regex
 
+# file constants
+abbreviationsFile = "./Abbreviations.csv"
+
 # enumerations based on MIDI DB template definition
 manufacturer = 0
 device = 1
@@ -21,15 +24,23 @@ orientation = 13
 notes = 14
 usage = 15
 
-def processDefinition(inputFile):
+def processDefinition(inputFile,noSpaces):
     print("=============================")
     print("Processing ",inputFile,"...\n")
+
     midiArray = loadCsv(inputFile)
-    deduplicateParameterNames(midiArray)
+
+# Choose to use abbreviations
+    abbreviationsArray = loadCsv(abbreviationsFile)
+    midiArray = applyAbbreviations(midiArray,abbreviationsArray)
+
+    deduplicateParameterNames(midiArray,noSpaces)
     synthName = cleanParameterName(midiArray[1][device]).replace(" ","_")
+
     createFolderStructure(synthName)
     createPanelFile(synthName)
-    createMGDefinition(midiArray,synthName)
+
+    createMGDefinition(midiArray,synthName,noSpaces)
     print("Finished making MIDI Goblin folder for "+synthName)
 
 
@@ -57,25 +68,35 @@ def loadCsv(inputFile):
         midiArray = list(midiDefinition)
 
     return midiArray
- 
-def cleanParameterName(parameterName):
+
+def applyAbbreviations(targetArray,abbreviationsArray):
+    for item in targetArray:
+        for abbreviation in abbreviationsArray:
+            item[parameter_name] = re.sub(r'(?i)'+abbreviation[0],abbreviation[1],item[parameter_name])
+    return targetArray
+
+def cleanParameterName(parameterName,noSpaces=False):
     # Removes characters that aren't alphanumeric or underscore, replaces spaces with underscore, and shortens name to 14 characters spaces
-    newName = re.sub('[ ]+', '_', parameterName) # Changes spaces to underscore
+    if noSpaces:
+        newName = re.sub('[ ]+', '', parameterName) # Removes spaces
+    else:    
+        newName = re.sub('[ ]+', '_', parameterName) # Changes spaces to underscore
+
     newName = re.sub('[^0-9a-zA-Z_]+', '', newName) # Get rid of invalid characters
     newName = newName[:14]
     return newName
 
-def deduplicateParameterNames(midiArray):
+def deduplicateParameterNames(midiArray,noSpaces):
     parNames = []
 
     for i in range(1, len(midiArray)-1):
-        newName = cleanParameterName(midiArray[i][parameter_name])
+        newName = cleanParameterName(midiArray[i][parameter_name],noSpaces)
         while newName in parNames:
             print("---------------------------------------")
             print("\nThere is already a parameter called\n     ",newName)
             print("Enter a different name to use for the \n     ",midiArray[i][parameter_name],"\n parameter.")
             newName = input("> ")
-            cleanParameterName(newName)
+            cleanParameterName(newName,noSpaces)
         parNames.append(newName)
         midiArray[i][parameter_name] = newName
        
@@ -91,16 +112,16 @@ def createFolder(directory_name):
         print(f"An error occurred: {e}")
 
 
-def createMGDefinition(midiArray,synthName):
+def createMGDefinition(midiArray,synthName,noSpaces=False):
     # Create MIDI Goblin definition arrays
     file_path = "./"+synthName+"/"+"CONFIG"+"/MIDI_INFO.txt"
     with open(file_path, 'w') as file:
         for i in range(1,len(midiArray)-1):
             if midiArray[i][manufacturer] != "manufacturer":
                 if midiArray[i][cc_msb] != "": # prioritize processing controls for CC over NRPN
-                    file.write("CC "+cleanParameterName(midiArray[i][parameter_name])+" "+midiArray[i][cc_msb]+"\n")
+                    file.write("CC "+cleanParameterName(midiArray[i][parameter_name],noSpaces)+" "+midiArray[i][cc_msb]+"\n")
                 elif midiArray[i][nrpn_msb] != "": # process if there's an NRPN value, but no CC value
-                    file.write("NRPN "+cleanParameterName(midiArray[i][parameter_name])+" "+midiArray[i][nrpn_msb]+" "+midiControl[i][nrpn_lsb]+"\n")
+                    file.write("NRPN "+cleanParameterName(midiArray[i][parameter_name],noSpaces)+" "+midiArray[i][nrpn_msb]+" "+midiArray[i][nrpn_lsb]+"\n")
 
 # ========MAIN CODE===========================
 
@@ -110,8 +131,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", metavar="FILE", help="Process a single file")
     parser.add_argument("-d", metavar="DIRECTORY", help="Process an entire directory of files")
+    parser.add_argument("-nospaces", action='store_true', help="Removes spaces from parameter names")
 
     args = parser.parse_args()
+
 
     if args.d != None and args.f != None:
         print("")
@@ -122,13 +145,13 @@ if __name__ == "__main__":
             print("Processing a directory")
             if os.path.isdir(args.d):
                 for inputFile in os.listdir(args.d): # Loop through all files in directory
-                    processDefinition(args.d + "\\" + inputFile)
+                    processDefinition(args.d + "\\" + inputFile,args.nospaces)
             else:
                 print("Invalid directory")
 
         elif args.f != None:
             if os.path.isfile(args.f):
-                processDefinition(args.f)
+                processDefinition(args.f,args.nospaces)
             else:
                 print("Invalid file")
 
@@ -140,3 +163,5 @@ if __name__ == "__main__":
             print("")
             print("To process all files in a directory:")
             print("python MidiDefToGoblin.py -d /PATHTODIRECTORY/")
+            print("")
+            print("Adding -nospaces will remove spaces from parameter names")
