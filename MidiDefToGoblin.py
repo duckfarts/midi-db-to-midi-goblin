@@ -60,7 +60,9 @@ def loadCsv(inputFile):
  
 def cleanParameterName(parameterName):
     # Removes characters that aren't alphanumeric, space, or underscore, and shortens name to 14 characters
-    newName = re.sub('[^0-9a-zA-Z _]+', '', parameterName)
+    # newName = re.sub('[^0-9a-zA-Z _]+', '', parameterName) # Keeps spaces
+    newName = re.sub('[^0-9a-zA-Z_]+', '', parameterName) # Get rid of invalid characters
+    newName = re.sub('[ ]+', '_', parameterName) # Changes spaces to underscore
     newName = newName[:14]
     return newName
 
