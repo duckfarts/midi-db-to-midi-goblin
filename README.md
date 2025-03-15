@@ -23,21 +23,27 @@ This means you can create definitions without having to manually enter all the p
 # Using MIDI DB to MIDI Goblin
 ## Before you get started
 - Download the .csv MIDI definitions you want to use from the [pencilresearch/midi repo](https://github.com/pencilresearch/midi)
+### Windows users
+- Download the `MidiDefToGoblin.exe` and `Abbreviations.csv` files in the `dist` folder
+### Everybody else, or if the exe doesn't work
+- Download the `MidiDefToGoblin.py` and `Abbreviations.csv` files
 - Make sure you have Python installed (I like using [Chocolatey](https://chocolatey.org/) to handle this in Windows)
-- Feel free to edit the `Abbreviations.csv` file however you want
-
-## Running the script
+## Running the utility
 ### Command line options
 - `-f YOURFILE.csv` runs the script on a single .csv MIDI definition
 - `-d /Path/To/MIDIDefinitions` runs the script on a directory of .csv MIDI definitions
 - `-nospaces` will remove spaces from parameter names, which helps bring some names under the 14 character limit
 ### Examples
+#### Using the exe file in Windows
+- `MidiDefToGoblin -f YourMIDIDefinition.csv`
+- `MidiDefToGoblin -d ./Path/To/MIDIFiles -nospaces`
+#### Running the script using Python
 - `python MidiDefToGoblin.py -f YourMIDIDefinition.csv`
 - `python MidiDefToGoblin.py -d ./Path/To/MIDIFiles -nospaces`
-
 
 ## After running the script
 - You can preview and edit the MIDI Goblin definition files, which are in `YOURSYNTHNAME/CONFIG/MIDI_INFO.txt` for each synth
     - Keep in mind that when editing the file, parameter names are alphanumeric only, can't have spaces or symbols other than `-` and `_`, and need to be 14 characters or less
+- If you don't like how parameter names are shortened, feel free to edit the `Abbreviations.csv` file however you want
 - Copy the synth folders to your MIDI Goblin microSD card's root folder
     - To get to the microSD card, remove the screws on the bottom of the device and lift off the plate
