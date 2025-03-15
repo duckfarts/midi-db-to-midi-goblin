@@ -24,9 +24,9 @@ This means you can create definitions without having to manually enter all the p
 ## Before you get started
 - Download the .csv MIDI definitions you want to use from the [pencilresearch/midi repo](https://github.com/pencilresearch/midi)
 ### Windows users
-- Download the `MidiDefToGoblin.exe` and `Abbreviations.csv` files in the `dist` folder
+- Download the files for Windows from the [Releases](https://github.com/duckfarts/midi-db-to-midi-goblin/releases) page
 ### Everybody else, or if the exe doesn't work
-- Download the `MidiDefToGoblin.py` and `Abbreviations.csv` files
+- Download the files for Python from the [Releases](https://github.com/duckfarts/midi-db-to-midi-goblin/releases) page
 - Make sure you have Python installed (I like using [Chocolatey](https://chocolatey.org/) to handle this in Windows)
 ## Running the utility
 ### Command line options
