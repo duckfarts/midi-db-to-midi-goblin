@@ -169,17 +169,17 @@ def launchUI(synthName,controlList):
                 </q-popup-edit>
             </q-td>
             <q-td auto-width >
-                <q-btn size="sm" color="primary" round dense icon="add"
-                    @click="() => $parent.$emit('add', props.row)"
+                <q-btn size="sm" color="primary" round dense icon="north"
+                    @click="() => $parent.$emit('up', props.row)"
                 />
             </q-td>
             <q-td auto-width >
-                <q-btn size="sm" color="primary" round dense icon="remove"
-                    @click="() => $parent.$emit('delete', props.row)"
+                <q-btn size="sm" color="primary" round dense icon="south"
+                    @click="() => $parent.$emit('down', props.row)"
                 />
             </q-td>
             <q-td auto-width >
-                <q-btn size="sm" color="deep-orange" round dense icon="delete"
+                <q-btn size="sm" color="deep-orange" round dense icon="delete_forever"
                     @click="() => $parent.$emit('delete', props.row)"
                 />
             </q-td>
