@@ -73,41 +73,6 @@ def launchUI(synthName,controlList):
         rows.append({'id':control.id,'type':control.type,'paramNameFull':control.paramNameFull, 'paramNameClean':control.paramNameClean,'cc':control.cc,'nrpnMsb':control.nrpnMsb,'nrpnLsb':control.nrpnLsb})
 
 
-    """
-    with ui.table(title=synthName, columns=columns, rows=rows, selection='multiple', column_defaults=column_defaults).classes('w-full') as table: # the w-NUMBER sets the width, maybe?
-        with table.add_slot('top-right'):
-            with ui.input(placeholder='Search').props('type=search').bind_value(table, 'filter').add_slot('append'):
-                ui.icon('search')
-        
-        with table.add_slot('bottom-row'):
-            with table.row():
-                with table.cell():
-                    ui.button(on_click=lambda: (
-                        table.add_row({'id': time.time(), 'type': new_type.value, 'paramName': new_paramName.value, 'cc': new_cc.value, 'nrpnMsb': new_nrpnMsb.value, 'nrpnLsb': new_nrpnLsb.value}),
-                        new_type.set_value(None),
-                        new_paramName.set_value(None),
-                        new_cc.set_value(None),
-                        new_nrpnMsb.set_value(None),
-                        new_nrpnLsb.set_value(None),
-                    ), icon='add').props('flat fab-mini')
-                with table.cell():
-                    new_type = ui.input('Type')
-                with table.cell():
-                    new_paramName = ui.input('Parameter Name')
-                with table.cell():
-                    new_cc = ui.number("CC")
-                with table.cell():
-                    new_nrpnMsb = ui.number("NRPN MSB")
-                with table.cell():
-                    new_nrpnLsb = ui.number("NRPN LSB")
-
-
-
-    ui.label().bind_text_from(table, 'selected', lambda val: f'Current selection: {val}')
-    ui.button('Remove', on_click=lambda: table.remove_rows(table.selected)) \
-        .bind_visibility_from(table, 'selected', backward=lambda val: bool(val))
-    """
-
 
     def add_row() -> None:
         new_id = max((dx['id'] for dx in rows), default=-1) + 1
@@ -115,21 +80,33 @@ def launchUI(synthName,controlList):
         ui.notify(f'Added new row with ID {new_id}')
         table.update()
 
-
     def rename(e: events.GenericEventArguments) -> None:
         for row in rows:
             if row['id'] == e.args['id']:
                 row.update(e.args)
-        ui.notify(f'Updated rows to: {table.rows}')
+                ui.notify(f'Updated row to: {row}')
         table.update()
-
 
     def delete(e: events.GenericEventArguments) -> None:
         rows[:] = [row for row in rows if row['id'] != e.args['id']]
         ui.notify(f'Deleted row with ID {e.args["id"]}')
         table.update()
 
+    def up(e: events.GenericEventArguments) -> None:
+        currentRow = int(e.args['id'])
+        if currentRow > 0:
+            rows[currentRow]['id'] = currentRow - 1
+            rows[currentRow-1]['id'] = currentRow
+            rows[currentRow], rows[currentRow - 1] = rows[currentRow - 1], rows[currentRow]
+            table.update()
 
+    def down(e: events.GenericEventArguments) -> None:
+        currentRow = int(e.args['id'])
+        if currentRow < len(rows) - 1:
+            rows[currentRow]['id'] = currentRow + 1
+            rows[currentRow+1]['id'] = currentRow
+            rows[currentRow], rows[currentRow + 1] = rows[currentRow + 1], rows[currentRow]
+            table.update()
 
     table = ui.table(title=synthName, columns=columns, rows=rows, column_defaults=column_defaults, row_key='id').classes('w-full')
 
@@ -219,8 +196,6 @@ def launchUI(synthName,controlList):
     table.on('delete', delete)
 
     ui.run()
-
-
 
 def processDefinition(inputFile,noSpaces):
     print("=============================")
