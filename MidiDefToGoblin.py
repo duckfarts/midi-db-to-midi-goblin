@@ -193,6 +193,8 @@ def launchUI(synthName,controlList):
         with ui.input(placeholder='Search').props('type=search').bind_value(table, 'filter').add_slot('append'):
             ui.icon('search')
     table.on('rename', rename)
+    table.on('up', up)
+    table.on('down', down)
     table.on('delete', delete)
 
     ui.run()
